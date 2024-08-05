@@ -13,9 +13,16 @@ import java.util.Collection;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping
-    public Collection<User> findAll() {
-        return userService.getUsers().values();
+    @GetMapping({"","{id}"})
+    public Collection<User> findAll(@PathVariable(required = false) Long id) {
+        if (id == null) {
+            return userService.getUsers().values();
+        } else {
+            return userService.getUsers().values()
+                    .stream()
+                    .filter(user -> user.getId().equals(id))
+                    .toList();
+        }
     }
 
     @PostMapping
