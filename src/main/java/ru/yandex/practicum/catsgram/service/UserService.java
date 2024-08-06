@@ -3,8 +3,7 @@ package ru.yandex.practicum.catsgram.service;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
-import ru.yandex.practicum.catsgram.exception.DuplicatedDataException;
+import ru.yandex.practicum.catsgram.exception.*;
 import ru.yandex.practicum.catsgram.model.User;
 
 import java.time.Instant;
@@ -18,6 +17,14 @@ public class UserService {
     @GetMapping
     public Collection<User> findAll() {
         return users.values();
+    }
+
+    public User getUserById(long id) {
+        return getUsers().values()
+                .stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("404: Заданный id не найден"));
     }
 
     @PostMapping
