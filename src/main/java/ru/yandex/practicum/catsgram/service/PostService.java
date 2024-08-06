@@ -4,8 +4,7 @@ import lombok.Data;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
-import ru.yandex.practicum.catsgram.model.Post;
-import ru.yandex.practicum.catsgram.model.User;
+import ru.yandex.practicum.catsgram.model.*;
 
 import java.time.Instant;
 import java.util.*;
@@ -17,8 +16,35 @@ public class PostService {
     private final UserService userService;
     private final Map<Long, Post> posts = new HashMap<>();
 
-    public Collection<Post> findAll() {
-        return posts.values();
+    public Collection<Post> findAll(SortOrder sort, int from, int size) {
+        return switch (sort) {
+            case DESCENDING -> getPosts().values()
+                    .stream()
+                    .skip(from)
+                    .limit(size)
+                    .sorted(Comparator.comparing(Post::getPostDate).reversed())
+                    .toList();
+            case ASCENDING -> getPosts().values()
+                    .stream()
+                    .skip(from)
+                    .limit(size)
+                    .sorted(Comparator.comparing(Post::getPostDate))
+                    .toList();
+            case null -> getPosts().values()
+                    .stream()
+                    .skip(from)
+                    .limit(size)
+                    .sorted(Comparator.comparing(Post::getPostDate))
+                    .toList();
+        };
+    }
+
+    public Post getPostById(long id) {
+        return getPosts().values()
+                .stream()
+                .filter(post -> post.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("404: Заданный id не найден"));
     }
 
     public Post create(Post post) {
